@@ -246,6 +246,43 @@ function processValue(value: unknown) {
 }
 ```
 
+#### Type-Safe Object Keys
+
+```typescript
+import { keys } from '@esoh/ts-utils';
+
+// With literal types and exact object shape
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true
+} as const;
+
+const configKeys = keys(config); // type is ('port' | 'host' | 'debug')[]
+
+// With regular object and exact shape
+const user = {
+  name: 'John',
+  age: 30
+};
+
+const userKeys = keys(user); // type is ('name' | 'age')[]
+
+// Type-safe iteration
+for (const key of keys(config)) {
+  // TypeScript knows key is 'port' | 'host' | 'debug'
+  const value = config[key]; // TypeScript knows the exact type of each value
+}
+
+// ⚠️ Note: This function assumes the object has exactly the keys specified in its type.
+// If the object might have additional properties not specified in its type,
+// use Object.keys() directly:
+const dynamicObj = { a: 1, b: 2, c: 3 };
+const extraProps = { ...dynamicObj, d: 4, e: 5 };
+// Use Object.keys() when the object might have extra properties
+const allKeys = Object.keys(extraProps); // type is string[]
+```
+
 ## Features
 
 - Strict type checking
@@ -257,4 +294,4 @@ function processValue(value: unknown) {
 
 ## License
 
-MIT 
+MIT

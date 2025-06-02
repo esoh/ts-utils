@@ -128,5 +128,22 @@ export function assertedProperty<T extends object>(
   return obj[validKey];
 }
 
+/**
+ * Type-safe version of Object.keys that preserves literal types
+ * @param obj - The object to get keys from
+ * @returns An array of the object's keys with their literal types preserved
+ * @example
+ * ```typescript
+ * const obj = { a: 1, b: 2 } as const;
+ * const keys = keys(obj); // type is ('a' | 'b')[]
+ * ```
+ * @note This function assumes the object has exactly the keys specified in its type.
+ * If the object might have additional properties not specified in its type,
+ * use Object.keys() directly.
+ */
+export function keys<T extends object>(obj: T): Array<keyof T> {
+  return Object.keys(obj) as Array<keyof T>;
+}
+
 // Re-export type utilities
 export * from './types'; 
