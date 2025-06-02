@@ -249,7 +249,7 @@ function processValue(value: unknown) {
 #### Type-Safe Object Keys
 
 ```typescript
-import { keys } from '@esoh/ts-utils';
+import { objectKeys } from '@esoh/ts-utils';
 
 // With literal types and exact object shape
 const config = {
@@ -258,7 +258,7 @@ const config = {
   debug: true
 } as const;
 
-const configKeys = keys(config); // type is ('port' | 'host' | 'debug')[]
+const configKeys = objectKeys(config); // type is ('port' | 'host' | 'debug')[]
 
 // With regular object and exact shape
 const user = {
@@ -266,10 +266,10 @@ const user = {
   age: 30
 };
 
-const userKeys = keys(user); // type is ('name' | 'age')[]
+const userKeys = objectKeys(user); // type is ('name' | 'age')[]
 
 // Type-safe iteration
-for (const key of keys(config)) {
+for (const key of objectKeys(config)) {
   // TypeScript knows key is 'port' | 'host' | 'debug'
   const value = config[key]; // TypeScript knows the exact type of each value
 }
