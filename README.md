@@ -1,6 +1,6 @@
 # @esoh/ts-utils
 
-A collection of TypeScript utility functions with strict type safety.
+A collection of TypeScript utility functions and types with strict type safety.
 
 ## Installation
 
@@ -10,9 +10,40 @@ yarn add @esoh/ts-utils
 
 ## Usage
 
-This package provides type-safe assertion functions that help with runtime type checking while maintaining strict TypeScript type safety.
+This package provides type-safe assertion functions and utility types that help with TypeScript development.
 
-### Basic Assertion
+### Utility Types
+
+#### ValueOf
+
+Extracts the type of values from an object type.
+
+```typescript
+import { ValueOf } from '@esoh/ts-utils';
+
+// With string literal types
+type Colors = { red: 'red'; blue: 'blue'; green: 'green' };
+type Color = ValueOf<Colors>; // 'red' | 'blue' | 'green'
+
+// With mixed value types
+type Config = {
+  port: number;
+  host: string;
+  debug: boolean;
+};
+type ConfigValue = ValueOf<Config>; // number | string | boolean
+
+// With nested objects
+type Nested = {
+  a: { x: number };
+  b: { y: string };
+};
+type NestedValue = ValueOf<Nested>; // { x: number } | { y: string }
+```
+
+### Assertion Functions
+
+#### Basic Assertion
 
 ```typescript
 import { assert } from '@esoh/ts-utils';
@@ -30,7 +61,7 @@ function processUser(user: unknown) {
 }
 ```
 
-### Undefined Check
+#### Undefined Check
 
 ```typescript
 import { assertDefined } from '@esoh/ts-utils';
@@ -47,7 +78,7 @@ function processName(name: string | undefined) {
 }
 ```
 
-### Null Check
+#### Null Check
 
 ```typescript
 import { assertNotNull } from '@esoh/ts-utils';
@@ -64,7 +95,7 @@ function processValue(value: string | null) {
 }
 ```
 
-### Nullish Check (null or undefined)
+#### Nullish Check (null or undefined)
 
 ```typescript
 import { assertNotNullish } from '@esoh/ts-utils';
@@ -81,7 +112,7 @@ function processValue(value: string | null | undefined) {
 }
 ```
 
-### Asserted Value
+#### Asserted Value
 
 ```typescript
 import { asserted } from '@esoh/ts-utils';
@@ -102,7 +133,64 @@ function processValue(value: string | null | undefined) {
 }
 ```
 
-### Exhaustive Type Checking
+#### Key Assertion
+
+```typescript
+import { assertedKeyOf } from '@esoh/ts-utils';
+
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true
+} as const;
+
+function getConfigValue(key: string) {
+  // Using string message
+  const validKey = assertedKeyOf(config, key, 'Invalid config key');
+  // TypeScript knows validKey is 'port' | 'host' | 'debug'
+  return config[validKey];
+
+  // Using Error object
+  const anotherKey = assertedKeyOf(config, key, new Error('Invalid config key'));
+  // TypeScript knows anotherKey is 'port' | 'host' | 'debug'
+  return config[anotherKey];
+}
+
+// Type-safe object access
+const port = config[assertedKeyOf(config, 'port')]; // TypeScript knows this is 3000
+const host = config[assertedKeyOf(config, 'host')]; // TypeScript knows this is 'localhost'
+```
+
+#### Property Assertion
+
+```typescript
+import { assertedProperty } from '@esoh/ts-utils';
+
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true
+} as const;
+
+function getConfigValue(key: string) {
+  // Using string message
+  const value = assertedProperty(config, key, 'Invalid config key');
+  // TypeScript knows value is 3000 | 'localhost' | true
+  return value;
+
+  // Using Error object
+  const anotherValue = assertedProperty(config, key, new Error('Invalid config key'));
+  // TypeScript knows anotherValue is 3000 | 'localhost' | true
+  return anotherValue;
+}
+
+// Type-safe object access with property assertion
+const port = assertedProperty(config, 'port'); // TypeScript knows this is 3000
+const host = assertedProperty(config, 'host'); // TypeScript knows this is 'localhost'
+const debug = assertedProperty(config, 'debug'); // TypeScript knows this is true
+```
+
+#### Exhaustive Type Checking
 
 ```typescript
 import { assertNever } from '@esoh/ts-utils';
@@ -141,7 +229,7 @@ function handleResult(result: Result) {
 }
 ```
 
-### Type Assertion
+#### Type Assertion
 
 ```typescript
 import { assertType } from '@esoh/ts-utils';
@@ -164,6 +252,7 @@ function processValue(value: unknown) {
 - Runtime type assertions
 - TypeScript type narrowing
 - Custom error messages or Error objects
+- Utility types
 - Zero dependencies
 
 ## License

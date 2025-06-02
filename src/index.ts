@@ -90,4 +90,43 @@ export function asserted<T>(value: T | null | undefined, messageOrError?: string
  */
 export function assertNever(value: never, messageOrError?: string | Error): never {
   throw createError(messageOrError, `Unhandled value: ${JSON.stringify(value)}`);
-} 
+}
+
+/**
+ * Type-safe assertion function that checks if a value is a key of an object type
+ * @param obj - The object to check against
+ * @param key - The key to check
+ * @param messageOrError - Optional error message or Error object
+ * @returns The key if it exists in the object
+ * @throws {Error} If the key is not a valid key of the object
+ */
+export function assertedKeyOf<T extends object>(
+  obj: T,
+  key: string | number | symbol,
+  messageOrError?: string | Error
+): keyof T {
+  if (!(key in obj)) {
+    throw createError(messageOrError, `Key "${String(key)}" is not a valid key of the object`);
+  }
+  return key as keyof T;
+}
+
+/**
+ * Type-safe assertion function that checks if a key exists in an object and returns its value
+ * @param obj - The object to check against
+ * @param key - The key to check
+ * @param messageOrError - Optional error message or Error object
+ * @returns The value at the key if it exists in the object
+ * @throws {Error} If the key is not a valid key of the object
+ */
+export function assertedProperty<T extends object>(
+  obj: T,
+  key: string | number | symbol,
+  messageOrError?: string | Error
+): T[keyof T] {
+  const validKey = assertedKeyOf(obj, key, messageOrError);
+  return obj[validKey];
+}
+
+// Re-export type utilities
+export * from './types'; 
