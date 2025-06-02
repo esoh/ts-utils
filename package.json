@@ -1,0 +1,31 @@
+{
+  "name": "@esoh/ts-utils",
+  "version": "1.0.0",
+  "description": "TypeScript utility functions with strict type safety",
+  "main": "cjs/index.js",
+  "types": "cjs/index.d.ts",
+  "license": "MIT",
+  "author": "esoh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/esoh/ts-utils"
+  },
+  "keywords": [
+    "typescript",
+    "utils",
+    "assert"
+  ],
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "cjs"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
