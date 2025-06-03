@@ -145,5 +145,32 @@ export function objectKeys<T extends object>(obj: T): Array<keyof T> {
   return Object.keys(obj) as Array<keyof T>;
 }
 
+/**
+ * Type-safe version of object property access that preserves literal types
+ * @param obj - The object to get the property from
+ * @param key - The key to access
+ * @returns The value at the key if it exists, undefined otherwise
+ * @example
+ * ```typescript
+ * const obj = { a: 1, b: 2 } as const;
+ * const value = objectGet(obj, 'a'); // type is 1
+ * const maybeValue = objectGet(obj, 'c' as string); // type is undefined
+ * ```
+ */
+export function objectGet<T extends object, K extends keyof T>(
+  obj: T,
+  key: K
+): T[K];
+export function objectGet<T extends object, K extends string | number | symbol>(
+  obj: T,
+  key: K
+): T[keyof T] | undefined;
+export function objectGet<T extends object, K extends string | number | symbol>(
+  obj: T,
+  key: K
+): T[keyof T] | undefined {
+  return key in obj ? obj[key as unknown as keyof T] : undefined;
+}
+
 // Re-export type utilities
 export * from './types'; 

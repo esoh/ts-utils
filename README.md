@@ -279,8 +279,42 @@ for (const key of objectKeys(config)) {
 // use Object.keys() directly:
 const dynamicObj = { a: 1, b: 2, c: 3 };
 const extraProps = { ...dynamicObj, d: 4, e: 5 };
-// Use Object.keys() when the object might have extra properties
 const allKeys = Object.keys(extraProps); // type is string[]
+```
+
+#### Type-Safe Object Property Access
+
+```typescript
+import { objectGet } from '@esoh/ts-utils';
+
+// With literal types and exact object shape
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true
+} as const;
+
+// When key is definitely in the object
+const port = objectGet(config, 'port'); // type is 3000
+const host = objectGet(config, 'host'); // type is 'localhost'
+
+// When key might not be in the object
+const maybeValue = objectGet(config, 'unknown' as string); // type is undefined
+
+// With regular object
+const user = {
+  name: 'John',
+  age: 30
+};
+
+const name = objectGet(user, 'name'); // type is string
+const age = objectGet(user, 'age'); // type is number
+const unknown = objectGet(user, 'unknown' as string); // type is undefined
+
+// Type-safe access in functions
+function getConfigValue<T extends keyof typeof config>(key: T) {
+  return objectGet(config, key); // type is (typeof config)[T]
+}
 ```
 
 ## Features
