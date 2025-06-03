@@ -287,35 +287,77 @@ const allKeys = Object.keys(extraProps); // type is string[]
 ```typescript
 import { objectGet } from '@esoh/ts-utils';
 
-// With literal types and exact object shape
-const config = {
-  port: 3000,
-  host: 'localhost',
-  debug: true
-} as const;
+// With literal object and literal key
+const obj1 = { a: 1, b: 2 } as const;
+const value1 = objectGet(obj1, 'a'); // type is 1
 
-// When key is definitely in the object
-const port = objectGet(config, 'port'); // type is 3000
-const host = objectGet(config, 'host'); // type is 'localhost'
+// With literal object and wide key
+const obj2 = { a: 1, b: 2 } as const;
+const value2 = objectGet(obj2, 'a' as string); // type is 1 | 2 | undefined
 
-// When key might not be in the object
-const maybeValue = objectGet(config, 'unknown' as string); // type is undefined
+// With wide object
+const obj3: Record<string, number> = { a: 1, b: 2 };
+const value3 = objectGet(obj3, 'a'); // type is number | undefined
 
-// With regular object
-const user = {
-  name: 'John',
-  age: 30
-};
-
-const name = objectGet(user, 'name'); // type is string
-const age = objectGet(user, 'age'); // type is number
-const unknown = objectGet(user, 'unknown' as string); // type is undefined
-
-// Type-safe access in functions
-function getConfigValue<T extends keyof typeof config>(key: T) {
-  return objectGet(config, key); // type is (typeof config)[T]
-}
+// ⚠️ Note: When using an object with literal keys (like obj1 and obj2 above),
+// the function assumes the object will only contain those exact keys and no others.
+// If you need to handle objects that might have additional properties,
+// use a wide type like Record<string, number> instead.
 ```
+
+#### Type Equality Assertion
+
+The `tsAssertIsEqual` function is a compile-time type assertion that verifies two types are exactly the same. It's useful for ensuring type safety in your codebase and catching type mismatches early in development.
+
+```typescript
+import { tsAssertIsEqual } from '@esoh/ts-utils';
+
+// Basic type equality check
+const a = { a: 1, b: 2 };
+const b = { a: 1, b: 2 };
+tsAssertIsEqual<typeof a, typeof b>(); // OK
+
+// TypeScript will error if types don't match
+const c = { a: 1, b: 2, c: 3 };
+tsAssertIsEqual<typeof a, typeof c>(); // Error: c has extra property c
+
+// Works with literal types
+const obj = { a: 1, b: 2 } as const;
+const value = obj.a;
+tsAssertIsEqual<typeof value, 1>(); // OK
+
+// Works with union types
+const maybeValue: number | undefined = undefined;
+tsAssertIsEqual<typeof maybeValue, number | undefined>(); // OK
+
+// Works with function return types
+function getValue(): number {
+  return 42;
+}
+tsAssertIsEqual<ReturnType<typeof getValue>, number>(); // OK
+
+// Works with complex types
+type ComplexType = {
+  a: number;
+  b: string;
+  c: boolean;
+};
+const complex: ComplexType = { a: 1, b: '2', c: true };
+tsAssertIsEqual<typeof complex, ComplexType>(); // OK
+
+// Catches type mismatches
+const wrong: { a: string } = { a: '1' };
+tsAssertIsEqual<typeof wrong, ComplexType>(); // Error: types don't match
+```
+
+This function is particularly useful for:
+- Ensuring API contracts are maintained
+- Verifying type transformations
+- Testing type utilities
+- Catching type mismatches in refactoring
+- Documenting expected types in code
+
+Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
 
 ## Features
 

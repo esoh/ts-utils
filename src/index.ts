@@ -146,30 +146,91 @@ export function objectKeys<T extends object>(obj: T): Array<keyof T> {
 }
 
 /**
- * Type-safe version of object property access that preserves literal types
+ * Type utility that checks if all keys in an object type are literal types.
+ * Returns "T" if all keys are literal types, "F" otherwise.
+ * 
+ * @example
+ * ```typescript
+ * type A = AreKeysLiteral<{ a: 1, b: 2 }>; // "T"
+ * type B = AreKeysLiteral<Record<string, number>>; // "F"
+ * type C = AreKeysLiteral<{ [key: string]: number }>; // "F"
+ * ```
+ */
+type AreKeysLiteral<T> = keyof T extends string | number | symbol
+  ? string extends keyof T
+    ? "F"
+    : number extends keyof T
+      ? "F"
+      : symbol extends keyof T
+        ? "F"
+        : "T"
+  : "F";
+
+/**
+ * Type-safe version of object property access that preserves literal types and handles both literal and wide key types.
+ * 
+ * When the object has literal keys and the key is a literal type:
+ * - Returns the exact value type if the key exists
+ * - Returns undefined if the key doesn't exist
+ * 
+ * When the object has wide keys or the key is a wide type:
+ * - Returns the union of all possible value types or undefined
+ * 
  * @param obj - The object to get the property from
  * @param key - The key to access
  * @returns The value at the key if it exists, undefined otherwise
  * @example
  * ```typescript
- * const obj = { a: 1, b: 2 } as const;
- * const value = objectGet(obj, 'a'); // type is 1
- * const maybeValue = objectGet(obj, 'c' as string); // type is undefined
+ * // With literal object and literal key
+ * const obj1 = { a: 1, b: 2 } as const;
+ * const value1 = objectGet(obj1, 'a'); // type is 1
+ * 
+ * // With literal object and wide key
+ * const obj2 = { a: 1, b: 2 } as const;
+ * const value2 = objectGet(obj2, 'a' as string); // type is 1 | 2 | undefined
+ * 
+ * // With wide object
+ * const obj3: Record<string, number> = { a: 1, b: 2 };
+ * const value3 = objectGet(obj3, 'a'); // type is number | undefined
  * ```
  */
-export function objectGet<T extends object, K extends keyof T>(
-  obj: T,
-  key: K
-): T[K];
 export function objectGet<T extends object, K extends string | number | symbol>(
   obj: T,
   key: K
-): T[keyof T] | undefined;
-export function objectGet<T extends object, K extends string | number | symbol>(
-  obj: T,
-  key: K
-): T[keyof T] | undefined {
-  return key in obj ? obj[key as unknown as keyof T] : undefined;
+) {
+  return (key in obj ? obj[key as unknown as keyof T] : undefined) as unknown as 
+    "T" extends AreKeysLiteral<T> 
+      ? (K extends keyof T ? T[K] : (keyof T extends K ? T[keyof T] | undefined : undefined))
+      : (K extends keyof T ? T[K] | undefined : undefined);
+}
+
+/**
+ * If A and B are the same type, return TrueValueT, otherwise return FalseValueT.
+ */
+type IfEquals<A, B, TrueValueT, FalseValueT> = (<
+  G,
+>() => G extends A ? 1 : 2) extends <G>() => G extends B ? 1 : 2
+  ? TrueValueT
+  : FalseValueT;
+
+/**
+ * This function is used to enforce that two types are the same.
+ *
+ * @example
+ * const a = {a: 1, b: 2};
+ * const b = {a: 1, b: 2, c: 3};
+ * tsAssertIsEqual<typeof a, typeof b>(); // Error: b has extra property c
+ *
+ * @example
+ * const a = {a: 1, b: 2};
+ * const b = {a: 1, b: 2};
+ * tsAssertIsEqual<typeof a, typeof b>(); // GOOD
+ */
+export function tsAssertIsEqual<ExpectedT, ActualT>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ..._args: IfEquals<ExpectedT, ActualT, [], never>
+) {
+  return;
 }
 
 // Re-export type utilities
