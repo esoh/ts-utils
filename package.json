@@ -1,6 +1,6 @@
 {
   "name": "@esoh/ts-utils",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "TypeScript utility functions with strict type safety",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
