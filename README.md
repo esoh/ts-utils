@@ -359,6 +359,56 @@ This function is particularly useful for:
 
 Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
 
+#### Exhaustive Keys Assertion
+
+The `tsAssertExhaustiveKeys` function is a type-level assertion that ensures an array of keys exactly matches all the keys of an object type. It's particularly useful when you need to maintain a list of keys and want TypeScript to enforce that any changes to the object's keys must be reflected in the array.
+
+```typescript
+import { tsAssertExhaustiveKeys } from '@esoh/ts-utils';
+
+// Example with a configuration object
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true
+} as const;
+
+// Define the keys
+const keys = ['port', 'host', 'debug'] as const;
+
+// This will pass type checking because all keys are present
+tsAssertExhaustiveKeys<typeof config, typeof keys>();
+
+// If you add a new key to config but forget to update keys, TypeScript will error
+const newConfig = {
+  port: 3000,
+  host: 'localhost',
+  debug: true,
+  timeout: 5000
+} as const;
+
+// This will fail type checking because 'timeout' is missing from keys
+tsAssertExhaustiveKeys<typeof newConfig, typeof keys>();
+
+// Works with literal types
+const literalConfig = {
+  a: 1,
+  b: 2,
+  c: 3
+} as const;
+
+const literalKeys = ['a', 'b', 'c'] as const;
+tsAssertExhaustiveKeys<typeof literalConfig, typeof literalKeys>(); // OK
+```
+
+This function is particularly useful for:
+- Maintaining lists of object keys
+- Ensuring configuration objects and their key lists stay in sync
+- Catching missing or extra keys during refactoring
+- Documenting expected keys in code
+
+Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
+
 ## Features
 
 - Strict type checking
