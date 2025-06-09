@@ -21,6 +21,14 @@ export function assert(condition: unknown, messageOrError?: string | Error): ass
 }
 
 /**
+ * Alias for assert that provides a more specific name to avoid conflicts
+ * @param condition - The condition to check
+ * @param messageOrError - Optional error message or Error object
+ * @throws {Error} If the condition is false
+ */
+export const assertCondition = assert;
+
+/**
  * Type-safe assertion function that checks if a value is not undefined
  * @param value - The value to check
  * @param messageOrError - Optional error message or Error object

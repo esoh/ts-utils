@@ -86,11 +86,14 @@ type Expanded = ExpandRecursively<ComplexType>;
 #### Basic Assertion
 
 ```typescript
-import { assert } from '@esoh/ts-utils';
+import { assert, assertCondition } from '@esoh/ts-utils';
 
 function processUser(user: unknown) {
-  // Using string message
+  // Using assert
   assert(user && typeof user === 'object', 'User must be an object');
+  
+  // Or using assertCondition (they are aliases)
+  assertCondition(user && typeof user === 'object', 'User must be an object');
   
   // Using Error object
   assert(user && typeof user === 'object', new Error('Invalid user object'));
