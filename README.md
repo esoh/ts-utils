@@ -190,6 +190,38 @@ const host = assertedProperty(config, 'host'); // TypeScript knows this is 'loca
 const debug = assertedProperty(config, 'debug'); // TypeScript knows this is true
 ```
 
+#### Enum Array Value Check
+
+```typescript
+import { assertOneOf } from '@esoh/ts-utils';
+
+// Define an enum array
+const Status = ['active', 'inactive', 'pending'] as const;
+type Status = typeof Status[number];
+
+function processStatus(status: string) {
+  // Using string message
+  assertOneOf(status, Status, 'Invalid status value');
+  // TypeScript now knows status is of type Status
+  // ... rest of your code
+
+  // Using Error object
+  assertOneOf(status, Status, new Error('Invalid status value'));
+  // TypeScript now knows status is of type Status
+  // ... rest of your code
+}
+
+// Works with number enums too
+const Numbers = [1, 2, 3, 4, 5] as const;
+type NumberEnum = typeof Numbers[number];
+
+function processNumber(num: number) {
+  assertOneOf(num, Numbers, 'Number must be between 1 and 5');
+  // TypeScript now knows num is of type NumberEnum
+  // ... rest of your code
+}
+```
+
 #### Exhaustive Type Checking
 
 ```typescript

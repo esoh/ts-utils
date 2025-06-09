@@ -192,6 +192,26 @@ export function tsAssertExhaustiveKeys<T extends object, K extends readonly (key
   return;
 }
 
+/**
+ * Type-safe assertion function that checks if a value is one of the allowed values
+ * @param value - The value to check
+ * @param allowedValues - The array of allowed values
+ * @param messageOrError - Optional error message or Error object
+ * @throws {Error} If the value is not one of the allowed values
+ */
+export function assertOneOf<T, U extends ReadonlyArray<T>>(
+  value: T,
+  allowedValues: U,
+  messageOrError?: string | Error
+): asserts value is U[number] {
+  if (!allowedValues.includes(value)) {
+    throw createError(
+      messageOrError,
+      `Value "${String(value)}" is not one of the allowed values: [${allowedValues.map(String).join(', ')}]`
+    );
+  }
+}
+
 // Re-export type utilities
 export * from './types';
 
