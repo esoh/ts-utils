@@ -220,6 +220,19 @@ function processNumber(num: number) {
   // TypeScript now knows num is of type NumberEnum
   // ... rest of your code
 }
+
+// You can also use assertedOneOf to get the value back
+function processStatusWithReturn(status: string) {
+  // Using string message
+  const validStatus = assertedOneOf(status, Status, 'Invalid status value');
+  // TypeScript knows validStatus is of type Status
+  return validStatus;
+
+  // Using Error object
+  const anotherStatus = assertedOneOf(status, Status, new Error('Invalid status value'));
+  // TypeScript knows anotherStatus is of type Status
+  return anotherStatus;
+}
 ```
 
 #### Exhaustive Type Checking

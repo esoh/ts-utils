@@ -212,6 +212,23 @@ export function assertOneOf<T, U extends ReadonlyArray<T>>(
   }
 }
 
+/**
+ * Type-safe assertion function that returns the value after asserting it's one of the allowed values
+ * @param value - The value to check
+ * @param allowedValues - The array of allowed values
+ * @param messageOrError - Optional error message or Error object
+ * @returns The value if it's one of the allowed values
+ * @throws {Error} If the value is not one of the allowed values
+ */
+export function assertedOneOf<T, U extends ReadonlyArray<T>>(
+  value: T,
+  allowedValues: U,
+  messageOrError?: string | Error
+): U[number] {
+  assertOneOf(value, allowedValues, messageOrError);
+  return value;
+}
+
 // Re-export type utilities
 export * from './types';
 
