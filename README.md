@@ -41,6 +41,46 @@ type Nested = {
 type NestedValue = ValueOf<Nested>; // { x: number } | { y: string }
 ```
 
+#### Expand
+
+Expands an object type to show all its properties in a more readable format. This is useful for both regular objects and intersection types.
+
+```typescript
+import { Expand } from '@esoh/ts-utils';
+
+// With regular objects
+type User = { name: string; age: number };
+type ExpandedUser = Expand<User>; // { name: string; age: number }
+
+// With intersection types
+type Complex = { a: string } & { b: number };
+type Simple = Expand<Complex>; // { a: string; b: number }
+```
+
+#### ExpandRecursively
+
+Same as Expand but works recursively on nested objects and their intersection types.
+
+```typescript
+import { ExpandRecursively } from '@esoh/ts-utils';
+
+// With regular objects
+type User = { name: string; age: number };
+type RecursiveUser = ExpandRecursively<User>; // { name: string; age: number }
+
+// With nested objects and intersections
+type ComplexType = {
+  user: { name: string } & { age: number };
+  settings: { theme: 'light' | 'dark' } & { language: string };
+};
+
+type Expanded = ExpandRecursively<ComplexType>;
+// {
+//   user: { name: string; age: number };
+//   settings: { theme: 'light' | 'dark'; language: string };
+// }
+```
+
 ### Assertion Functions
 
 #### Basic Assertion
