@@ -50,3 +50,59 @@ export type ExpandRecursively<T> = T extends object
     ? { [K in keyof O]: ExpandRecursively<O[K]> }
     : never
   : T;
+
+/**
+ * Utility type that omits properties from an object type where the value extends a given type
+ * @example
+ * ```typescript
+ * type Config = {
+ *   name: string;
+ *   age: number;
+ *   isActive: boolean;
+ *   createdAt: Date;
+ *   updatedAt: Date;
+ * };
+ * 
+ * // Remove all Date properties
+ * type WithoutDates = OmitPropertiesWhereValueExtendsType<Config, Date>;
+ * // { name: string; age: number; isActive: boolean }
+ * 
+ * // Remove all string properties
+ * type WithoutStrings = OmitPropertiesWhereValueExtendsType<Config, string>;
+ * // { age: number; isActive: boolean; createdAt: Date; updatedAt: Date }
+ * 
+ * // Remove all boolean properties
+ * type WithoutBooleans = OmitPropertiesWhereValueExtendsType<Config, boolean>;
+ * // { name: string; age: number; createdAt: Date; updatedAt: Date }
+ * ```
+ */
+export type OmitPropertiesWhereValueExtendsType<T, U> = {
+  [K in keyof T as T[K] extends U ? never : K]: T[K];
+};
+
+/**
+ * Creates a type with only the properties from T where the value type extends U.
+ * This is the complement of OmitPropertiesWhereValueExtendsType.
+ * 
+ * @example
+ * ```ts
+ * type TestObject = {
+ *   a: string;
+ *   b: number;
+ *   c: string | number;
+ *   d: string | number | boolean;
+ * };
+ * 
+ * type Result = PickPropertiesWhereValueExtendsType<TestObject, string | number>;
+ * // Result is equivalent to:
+ * // {
+ * //   a: string;      // picked because string extends string | number
+ * //   b: number;      // picked because number extends string | number
+ * //   c: string | number;  // picked because string | number extends string | number
+ * //   d: string | number | boolean;  // omitted because it does not extend string | number
+ * // }
+ * ```
+ */
+export type PickPropertiesWhereValueExtendsType<T, U> = {
+  [K in keyof T as T[K] extends U ? K : never]: T[K];
+};

@@ -81,6 +81,91 @@ type Expanded = ExpandRecursively<ComplexType>;
 // }
 ```
 
+#### OmitPropertiesWhereValueExtendsType
+
+Utility type that omits properties from an object type where the value extends a given type.
+
+```typescript
+import { OmitPropertiesWhereValueExtendsType } from '@esoh/ts-utils';
+
+type Config = {
+  name: string;
+  age: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Remove all Date properties
+type WithoutDates = OmitPropertiesWhereValueExtendsType<Config, Date>;
+// { name: string; age: number; isActive: boolean }
+
+// Remove all string properties
+type WithoutStrings = OmitPropertiesWhereValueExtendsType<Config, string>;
+// { age: number; isActive: boolean; createdAt: Date; updatedAt: Date }
+
+// Remove all boolean properties
+type WithoutBooleans = OmitPropertiesWhereValueExtendsType<Config, boolean>;
+// { name: string; age: number; createdAt: Date; updatedAt: Date }
+
+// Works with union types too
+type MixedConfig = {
+  name: string | null;
+  age: number | undefined;
+  isActive: boolean;
+  createdAt: string | null;
+};
+
+// Remove properties that extend string | null
+type WithoutStringOrNull = OmitPropertiesWhereValueExtendsType<MixedConfig, string | null>;
+// { age: number | undefined; isActive: boolean }
+```
+
+// Example showing how union types work:
+type TestObject = {
+  a: string;
+  b: number;
+  c: string | number;
+  d: string | number | boolean;
+};
+
+// This will omit properties where the value type extends string | number
+type Result = OmitPropertiesWhereValueExtendsType<TestObject, string | number>;
+// Result is equivalent to:
+// {
+//   a: string;      // omitted because string extends string | number
+//   b: number;      // omitted because number extends string | number
+//   c: string | number;  // omitted because string | number extends string | number
+//   d: string | number | boolean;  // kept because string | number | boolean does not extend string | number
+// }
+
+/**
+ * Creates a type with only the properties from T where the value type extends U.
+ * This is the complement of OmitPropertiesWhereValueExtendsType.
+ * 
+ * @example
+ * ```ts
+ * type TestObject = {
+ *   a: string;
+ *   b: number;
+ *   c: string | number;
+ *   d: string | number | boolean;
+ * };
+ * 
+ * type Result = PickPropertiesWhereValueExtendsType<TestObject, string | number>;
+ * // Result is equivalent to:
+ * // {
+ * //   a: string;      // picked because string extends string | number
+ * //   b: number;      // picked because number extends string | number
+ * //   c: string | number;  // picked because string | number extends string | number
+ * //   d: string | number | boolean;  // omitted because it does not extend string | number
+ * // }
+ * ```
+ */
+type PickPropertiesWhereValueExtendsType<T, U> = {
+  [K in keyof T as T[K] extends U ? K : never]: T[K];
+};
+
 ### Assertion Functions
 
 #### Basic Assertion
