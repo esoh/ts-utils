@@ -582,6 +582,44 @@ This function is particularly useful for:
 
 Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
 
+#### Array Includes
+
+Type-safe version of `Array.prototype.includes` that narrows down the type when checking if an array includes a value.
+
+```typescript
+import { arrayIncludes } from '@esoh/ts-utils';
+
+// With const arrays
+const colors = ['red', 'blue', 'green'] as const;
+const color = 'red' as string;
+
+if (arrayIncludes(colors, color)) {
+  // Inside this block, TypeScript knows that color is one of: 'red' | 'blue' | 'green'
+  console.log(color);
+}
+
+// With regular arrays
+const numbers = [1, 2, 3] as const;
+const num = 1 as number;
+
+if (arrayIncludes(numbers, num)) {
+  // Inside this block, TypeScript knows that num is a number
+  console.log(num);
+}
+
+// With union types
+type Status = 'pending' | 'active' | 'inactive';
+const statuses: Status[] = ['pending', 'active'];
+const status = 'pending';
+
+if (arrayIncludes(statuses, status)) {
+  // Inside this block, TypeScript knows that status is a Status
+  console.log(status);
+}
+```
+
+The function is particularly useful when you need to narrow down the type of a value based on its presence in an array. It's more type-safe than the built-in `Array.prototype.includes` because it properly narrows the type of the checked value.
+
 ## Features
 
 - Strict type checking
