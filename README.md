@@ -166,6 +166,39 @@ type PickPropertiesWhereValueExtendsType<T, U> = {
   [K in keyof T as T[K] extends U ? K : never]: T[K];
 };
 
+#### RequiredKeys
+
+Utility type that makes specified keys required in an object type.
+
+```typescript
+import { RequiredKeys } from '@esoh/ts-utils';
+
+type User = {
+  name: string;
+  email?: string;
+  age?: number;
+};
+
+// Make email and age required
+type UserWithRequiredFields = RequiredKeys<User, 'email' | 'age'>;
+// { name: string; email: string; age: number; }
+
+// Make only email required
+type UserWithRequiredEmail = RequiredKeys<User, 'email'>;
+// { name: string; email: string; age?: number; }
+
+// Works with any object type
+type Config = {
+  port?: number;
+  host?: string;
+  debug?: boolean;
+};
+
+// Make all fields required
+type RequiredConfig = RequiredKeys<Config, 'port' | 'host' | 'debug'>;
+// { port: number; host: string; debug: boolean; }
+```
+
 ### Assertion Functions
 
 #### Basic Assertion

@@ -106,3 +106,24 @@ export type OmitPropertiesWhereValueExtendsType<T, U> = {
 export type PickPropertiesWhereValueExtendsType<T, U> = {
   [K in keyof T as T[K] extends U ? K : never]: T[K];
 };
+
+/**
+ * Utility type that makes specified keys required in an object type
+ * @example
+ * ```typescript
+ * type User = {
+ *   name: string;
+ *   email?: string;
+ *   age?: number;
+ * };
+ * 
+ * // Make email and age required
+ * type UserWithRequiredFields = RequiredKeys<User, 'email' | 'age'>;
+ * // { name: string; email: string; age: number; }
+ * 
+ * // Make only email required
+ * type UserWithRequiredEmail = RequiredKeys<User, 'email'>;
+ * // { name: string; email: string; age?: number; }
+ * ```
+ */
+export type RequiredKeys<T, K extends keyof T> = T & { [P in K]-?: T[P] };

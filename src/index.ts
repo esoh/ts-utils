@@ -244,7 +244,7 @@ export function assertedOneOf<T, U extends ReadonlyArray<T>>(
  * @example
  * ```typescript
  * const colors = ['red', 'blue', 'green'] as const;
- * const color = 'red';
+ * const color = 'red' as string;
  * 
  * if (arrayIncludes(colors, color)) {
  *   // color is now narrowed to 'red' | 'blue' | 'green'
