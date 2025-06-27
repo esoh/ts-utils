@@ -438,17 +438,61 @@ function handleResult(result: Result) {
 #### Type Assertion
 
 ```typescript
-import { assertType } from '@esoh/ts-utils';
+import { 
+  assertString, assertNumber, assertBoolean, assertObject, assertArray, assertFunction,
+  assertedString, assertedNumber, assertedBoolean, assertedObject, assertedArray, assertedFunction
+} from '@esoh/ts-utils';
 
-function processValue(value: unknown) {
-  // Using string message
-  assertType<string>(value, 'string', 'Value must be a string');
+function processData(data: unknown) {
+  // Using assertion functions (void return)
+  assertString(data.name, 'Name must be a string');
+  assertNumber(data.age, 'Age must be a number');
+  assertBoolean(data.isActive, 'isActive must be a boolean');
+  assertObject(data.settings, 'Settings must be an object');
+  assertArray(data.tags, 'Tags must be an array');
+  assertFunction(data.handler, 'Handler must be a function');
   
-  // Using Error object
-  assertType<string>(value, 'string', new Error('Invalid value type'));
+  // TypeScript now knows the types are correct
+  console.log(data.name.toUpperCase());     // ✅ TypeScript knows this is a string
+  console.log(data.age.toFixed(2));         // ✅ TypeScript knows this is a number
+  console.log(data.isActive ? 'Yes' : 'No'); // ✅ TypeScript knows this is a boolean
+  console.log(Object.keys(data.settings));  // ✅ TypeScript knows this is an object
+  console.log(data.tags.length);            // ✅ TypeScript knows this is an array
+  data.handler();                           // ✅ TypeScript knows this is a function
+}
+
+function processDataWithReturn(data: unknown) {
+  // Using asserted functions (return the value)
+  const name = assertedString(data.name, 'Name must be a string');
+  const age = assertedNumber(data.age, 'Age must be a number');
+  const isActive = assertedBoolean(data.isActive, 'isActive must be a boolean');
+  const settings = assertedObject(data.settings, 'Settings must be an object');
+  const tags = assertedArray(data.tags, 'Tags must be an array');
+  const handler = assertedFunction(data.handler, 'Handler must be a function');
   
-  // TypeScript now knows value is a string
-  console.log(value.length);
+  // Can be used in expressions
+  const upperName = assertedString(data.name, 'Name required').toUpperCase();
+  const formattedAge = assertedNumber(data.age, 'Age required').toFixed(2);
+  const tagCount = assertedArray(data.tags, 'Tags required').length;
+  
+  return { name, age, isActive, settings, tags, handler };
+}
+
+// Works with unknown data from external sources
+function validateApiResponse(response: unknown) {
+  assertObject(response, 'Response must be an object');
+  
+  const data = response as { user?: unknown; config?: unknown };
+  
+  if (data.user) {
+    const user = assertedObject(data.user, 'User must be an object');
+    const userName = assertedString(user.name, 'User name must be a string');
+    const userAge = assertedNumber(user.age, 'User age must be a number');
+    
+    return { userName, userAge };
+  }
+  
+  return null;
 }
 ```
 
