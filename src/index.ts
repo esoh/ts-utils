@@ -358,13 +358,13 @@ export function assertOneOf<T, U extends ReadonlyArray<T>>(
  * @returns The value if it's one of the allowed values
  * @throws {Error} If the value is not one of the allowed values
  */
-export function assertedOneOf<T, U extends ReadonlyArray<T>>(
-  value: T,
-  allowedValues: U,
+export function assertedOneOf<const T extends readonly unknown[]>(
+  value: unknown,
+  allowedValues: T,
   messageOrError?: string | Error
-): U[number] {
+): T[number] {
   assertOneOf(value, allowedValues, messageOrError);
-  return value;
+  return value as T[number];
 }
 
 /**
