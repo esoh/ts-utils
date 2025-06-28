@@ -127,3 +127,8 @@ export type PickPropertiesWhereValueExtendsType<T, U> = {
  * ```
  */
 export type RequiredKeys<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+export type JsonObject = { [key: string]: JsonValue };
+export type JsonArray = JsonValue[];

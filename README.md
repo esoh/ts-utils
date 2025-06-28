@@ -697,6 +697,56 @@ if (arrayIncludes(statuses, status)) {
 
 The function is particularly useful when you need to narrow down the type of a value based on its presence in an array. It's more type-safe than the built-in `Array.prototype.includes` because it properly narrows the type of the checked value.
 
+#### JSON Types
+
+Type-safe JSON value types that match the JSON specification (RFC 7159).
+
+```typescript
+import { JsonPrimitive, JsonValue, JsonObject, JsonArray } from '@esoh/ts-utils';
+
+// JsonPrimitive covers the basic JSON types
+const primitive: JsonPrimitive = null; // OK
+const primitive2: JsonPrimitive = "hello"; // OK
+const primitive3: JsonPrimitive = 42; // OK
+const primitive4: JsonPrimitive = true; // OK
+
+// JsonValue covers all valid JSON values
+const value: JsonValue = { key: "value" }; // OK
+const value2: JsonValue = [1, "hello", null]; // OK
+const value3: JsonValue = "simple string"; // OK
+
+// JsonObject for JSON objects
+const obj: JsonObject = {
+  string: "value",
+  number: 42,
+  boolean: true,
+  null: null,
+  array: [1, 2, 3],
+  nested: { key: "value" }
+}; // OK
+
+// JsonArray for JSON arrays
+const arr: JsonArray = [
+  "string",
+  42,
+  true,
+  null,
+  { key: "value" },
+  [1, 2, 3]
+]; // OK
+
+// TypeScript will error for non-JSON values
+const invalid: JsonValue = undefined; // Error: undefined is not a valid JSON value
+const invalid2: JsonValue = new Date(); // Error: Date is not a valid JSON value
+const invalid3: JsonValue = () => {}; // Error: Function is not a valid JSON value
+```
+
+These types are useful for:
+- API responses that must be JSON-serializable
+- Configuration files that need to be stored as JSON
+- Ensuring data structures can be safely serialized
+- Type-safe JSON parsing and validation
+
 ## Features
 
 - Strict type checking
@@ -705,7 +755,3 @@ The function is particularly useful when you need to narrow down the type of a v
 - Custom error messages or Error objects
 - Utility types
 - Zero dependencies
-
-## License
-
-MIT
