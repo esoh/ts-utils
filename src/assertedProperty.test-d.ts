@@ -39,3 +39,9 @@ const config2 = Math.random() > 0.5 ? config : {
     const value = assertedProperty(config2, key, 'Invalid config key');
     tsAssertIsEqual<typeof value, 'red'>();
 }
+
+{
+    const key: unknown = 'apple';
+    const value = assertedProperty(config2, key, 'Invalid config key');
+    tsAssertIsEqual<typeof value, 'red' | 3000 | 'localhost' | true>();
+}

@@ -278,7 +278,7 @@ export function assertedProperty<T extends object, KeyT extends unknown>(
   obj: T,
   key: KeyT,
   messageOrError?: string | Error
-): T[keyof T];
+): T extends unknown ? T[keyof T] : never;
 export function assertedProperty<T extends object, KeyT extends keyof T | unknown>(
   obj: T,
   key: KeyT,
