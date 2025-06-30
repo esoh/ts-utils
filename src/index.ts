@@ -242,9 +242,12 @@ export function assertNever(value: never, messageOrError?: string | Error): neve
  */
 export function assertedKeyOf<T extends object>(
   obj: T,
-  key: string | number | symbol,
+  key: unknown,
   messageOrError?: string | Error
 ): keyof T {
+  if (typeof key !== 'string' && typeof key !== 'number' && typeof key !== 'symbol') {
+    throw createError(messageOrError, `Key "${String(key)}" is not a valid key of the object`);
+  }
   if (!(key in obj)) {
     throw createError(messageOrError, `Key "${String(key)}" is not a valid key of the object`);
   }
@@ -252,11 +255,11 @@ export function assertedKeyOf<T extends object>(
 }
 
 // need to distribute unions - hence the T extends unknown
-type MatchingValues<T extends object, KeyT extends string | number | symbol> = T extends unknown
+type MatchingValues<T extends object, KeyT extends (string | number | symbol) | unknown> = unknown extends KeyT ? T[keyof T] : (T extends unknown
   ? ValueOf<{
       [K in keyof T as K extends KeyT ? K : never]: T[K];
     }>
-  : never;
+  : never);
 
 /**
  * Type-safe assertion function that checks if a key exists in an object and returns its value
@@ -270,9 +273,19 @@ export function assertedProperty<T extends object, KeyT extends string | number 
   obj: T,
   key: KeyT,
   messageOrError?: string | Error
+): KeyT extends unknown ? (KeyT extends keyof T ? T[KeyT] : MatchingValues<T, KeyT>) : never;
+export function assertedProperty<T extends object, KeyT extends unknown>(
+  obj: T,
+  key: KeyT,
+  messageOrError?: string | Error
+): T[keyof T];
+export function assertedProperty<T extends object, KeyT extends keyof T | unknown>(
+  obj: T,
+  key: KeyT,
+  messageOrError?: string | Error
 ) {
   const validKey = assertedKeyOf(obj, key, messageOrError);
-  return obj[validKey] as KeyT extends keyof T ? T[KeyT] : MatchingValues<T, KeyT>;
+  return obj[validKey] as KeyT extends unknown ? (KeyT extends keyof T ? T[KeyT] : MatchingValues<T, KeyT>) : never;
 }
 
 /**

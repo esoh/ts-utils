@@ -24,6 +24,12 @@ const config = {
     tsAssertIsEqual<typeof value, 3000 | 'localhost'>();
 }
 
+{
+    const key: unknown = 'port';
+    const value = assertedProperty(config, key, 'Invalid config key');
+    tsAssertIsEqual<typeof value, 3000 | 'localhost' | true>();
+}
+
 const config2 = Math.random() > 0.5 ? config : {
     apple: 'red',
 } as const;
