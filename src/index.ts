@@ -1,3 +1,5 @@
+import { ValueOf } from './types';
+
 /**
  * Helper function to create an error from a message or Error object
  * @param messageOrError - The error message or Error object
@@ -249,6 +251,13 @@ export function assertedKeyOf<T extends object>(
   return key as keyof T;
 }
 
+// need to distribute unions - hence the T extends unknown
+type MatchingValues<T extends object, KeyT extends string | number | symbol> = T extends unknown
+  ? ValueOf<{
+      [K in keyof T as K extends KeyT ? K : never]: T[K];
+    }>
+  : never;
+
 /**
  * Type-safe assertion function that checks if a key exists in an object and returns its value
  * @param obj - The object to check against
@@ -257,13 +266,13 @@ export function assertedKeyOf<T extends object>(
  * @returns The value at the key if it exists in the object
  * @throws {Error} If the key is not a valid key of the object
  */
-export function assertedProperty<T extends object>(
+export function assertedProperty<T extends object, KeyT extends string | number | symbol>(
   obj: T,
-  key: string | number | symbol,
+  key: KeyT,
   messageOrError?: string | Error
-): T[keyof T] {
+) {
   const validKey = assertedKeyOf(obj, key, messageOrError);
-  return obj[validKey];
+  return obj[validKey] as KeyT extends keyof T ? T[KeyT] : MatchingValues<T, KeyT>;
 }
 
 /**
