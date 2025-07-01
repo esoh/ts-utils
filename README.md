@@ -121,51 +121,6 @@ type WithoutStringOrNull = OmitPropertiesWhereValueExtendsType<MixedConfig, stri
 // { age: number | undefined; isActive: boolean }
 ```
 
-// Example showing how union types work:
-type TestObject = {
-  a: string;
-  b: number;
-  c: string | number;
-  d: string | number | boolean;
-};
-
-// This will omit properties where the value type extends string | number
-type Result = OmitPropertiesWhereValueExtendsType<TestObject, string | number>;
-// Result is equivalent to:
-// {
-//   a: string;      // omitted because string extends string | number
-//   b: number;      // omitted because number extends string | number
-//   c: string | number;  // omitted because string | number extends string | number
-//   d: string | number | boolean;  // kept because string | number | boolean does not extend string | number
-// }
-
-/**
- * Creates a type with only the properties from T where the value type extends U.
- * This is the complement of OmitPropertiesWhereValueExtendsType.
- * 
- * @example
- * ```ts
- * type TestObject = {
- *   a: string;
- *   b: number;
- *   c: string | number;
- *   d: string | number | boolean;
- * };
- * 
- * type Result = PickPropertiesWhereValueExtendsType<TestObject, string | number>;
- * // Result is equivalent to:
- * // {
- * //   a: string;      // picked because string extends string | number
- * //   b: number;      // picked because number extends string | number
- * //   c: string | number;  // picked because string | number extends string | number
- * //   d: string | number | boolean;  // omitted because it does not extend string | number
- * // }
- * ```
- */
-type PickPropertiesWhereValueExtendsType<T, U> = {
-  [K in keyof T as T[K] extends U ? K : never]: T[K];
-};
-
 #### RequiredKeys
 
 Utility type that makes specified keys required in an object type.
@@ -297,7 +252,7 @@ function processValue(value: string | null | undefined) {
 #### Key Assertion
 
 ```typescript
-import { assertedKeyOf } from '@esoh/ts-utils';
+import { assertedExactObjKeyOf } from '@esoh/ts-utils';
 
 const config = {
   port: 3000,
@@ -307,25 +262,40 @@ const config = {
 
 function getConfigValue(key: string) {
   // Using string message
-  const validKey = assertedKeyOf(config, key, 'Invalid config key');
+  const validKey = assertedExactObjKeyOf(config, key, 'Invalid config key');
   // TypeScript knows validKey is 'port' | 'host' | 'debug'
   return config[validKey];
 
   // Using Error object
-  const anotherKey = assertedKeyOf(config, key, new Error('Invalid config key'));
+  const anotherKey = assertedExactObjKeyOf(config, key, new Error('Invalid config key'));
   // TypeScript knows anotherKey is 'port' | 'host' | 'debug'
   return config[anotherKey];
 }
 
 // Type-safe object access
-const port = config[assertedKeyOf(config, 'port')]; // TypeScript knows this is 3000
-const host = config[assertedKeyOf(config, 'host')]; // TypeScript knows this is 'localhost'
+const port = config[assertedExactObjKeyOf(config, 'port')]; // TypeScript knows this is 3000
+const host = config[assertedExactObjKeyOf(config, 'host')]; // TypeScript knows this is 'localhost'
+
+// ⚠️ IMPORTANT: assertedExactObjKeyOf should ONLY be used with exactly typed objects
+// Here's an example of what NOT to do:
+
+type MyObject = {apple: 'red'}
+const myObject = {
+    apple: 'red',
+    blueberry: 'blue',
+} as MyObject;
+
+// Because myObject is not exactly typed, this won't work correctly.
+// assertedExactObjKeyOf should only be used on exactly typed objects without any other properties.
+const key = 'blueberry' as const;
+const value = assertedExactObjKeyOf(myObject, key, 'Invalid config key');
+// TypeScript will infer the type as 'never' because 'blueberry' is not in the original type
 ```
 
 #### Property Assertion
 
 ```typescript
-import { assertedProperty } from '@esoh/ts-utils';
+import { assertedExactObjProperty } from '@esoh/ts-utils';
 
 const config = {
   port: 3000,
@@ -335,20 +305,35 @@ const config = {
 
 function getConfigValue(key: string) {
   // Using string message
-  const value = assertedProperty(config, key, 'Invalid config key');
+  const value = assertedExactObjProperty(config, key, 'Invalid config key');
   // TypeScript knows value is 3000 | 'localhost' | true
   return value;
 
   // Using Error object
-  const anotherValue = assertedProperty(config, key, new Error('Invalid config key'));
+  const anotherValue = assertedExactObjProperty(config, key, new Error('Invalid config key'));
   // TypeScript knows anotherValue is 3000 | 'localhost' | true
   return anotherValue;
 }
 
 // Type-safe object access with property assertion
-const port = assertedProperty(config, 'port'); // TypeScript knows this is 3000
-const host = assertedProperty(config, 'host'); // TypeScript knows this is 'localhost'
-const debug = assertedProperty(config, 'debug'); // TypeScript knows this is true
+const port = assertedExactObjProperty(config, 'port'); // TypeScript knows this is 3000
+const host = assertedExactObjProperty(config, 'host'); // TypeScript knows this is 'localhost'
+const debug = assertedExactObjProperty(config, 'debug'); // TypeScript knows this is true
+
+// ⚠️ IMPORTANT: assertedExactObjProperty should ONLY be used with exactly typed objects
+// Here's an example of what NOT to do:
+
+type MyObject = {apple: 'red'}
+const myObject = {
+    apple: 'red',
+    blueberry: 'blue',
+} as MyObject;
+
+// Because myObject is not exactly typed, this won't work correctly.
+// assertedExactObjProperty should only be used on exactly typed objects without any other properties.
+const key = 'blueberry' as const;
+const value = assertedExactObjProperty(myObject, key, 'Invalid config key');
+// TypeScript will infer the type as 'never' because 'blueberry' is not in the original type
 ```
 
 #### Enum Array Value Check
@@ -499,7 +484,7 @@ function validateApiResponse(response: unknown) {
 #### Type-Safe Object Keys
 
 ```typescript
-import { objectKeys } from '@esoh/ts-utils';
+import { exactObjKeys } from '@esoh/ts-utils';
 
 // With literal types and exact object shape
 const config = {
@@ -508,7 +493,7 @@ const config = {
   debug: true
 } as const;
 
-const configKeys = objectKeys(config); // type is ('port' | 'host' | 'debug')[]
+const configKeys = exactObjKeys(config); // type is ('port' | 'host' | 'debug')[]
 
 // With regular object and exact shape
 const user = {
@@ -516,10 +501,10 @@ const user = {
   age: 30
 };
 
-const userKeys = objectKeys(user); // type is ('name' | 'age')[]
+const userKeys = exactObjKeys(user); // type is ('name' | 'age')[]
 
 // Type-safe iteration
-for (const key of objectKeys(config)) {
+for (const key of exactObjKeys(config)) {
   // TypeScript knows key is 'port' | 'host' | 'debug'
   const value = config[key]; // TypeScript knows the exact type of each value
 }
@@ -535,19 +520,19 @@ const allKeys = Object.keys(extraProps); // type is string[]
 #### Type-Safe Object Property Access
 
 ```typescript
-import { objectGet } from '@esoh/ts-utils';
+import { exactObjGet } from '@esoh/ts-utils';
 
 // With literal object and literal key
 const obj1 = { a: 1, b: 2 } as const;
-const value1 = objectGet(obj1, 'a'); // type is 1
+const value1 = exactObjGet(obj1, 'a'); // type is 1
 
 // With literal object and wide key
 const obj2 = { a: 1, b: 2 } as const;
-const value2 = objectGet(obj2, 'a' as string); // type is 1 | 2 | undefined
+const value2 = exactObjGet(obj2, 'a' as string); // type is 1 | 2 | undefined
 
 // With wide object
 const obj3: Record<string, number> = { a: 1, b: 2 };
-const value3 = objectGet(obj3, 'a'); // type is number | undefined
+const value3 = exactObjGet(obj3, 'a'); // type is number | undefined
 
 // ⚠️ Note: When using an object with literal keys (like obj1 and obj2 above),
 // the function assumes the object will only contain those exact keys and no others.
