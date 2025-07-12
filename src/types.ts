@@ -132,3 +132,9 @@ export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 export type JsonObject = { [key: string]: JsonValue };
 export type JsonArray = JsonValue[];
+
+/**
+ * An empty object is the union of all possible objects.
+ * Make sure to use this intentionally and with caution.
+ */
+export type EmptyObjectUNSAFE = {};
