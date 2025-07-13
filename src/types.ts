@@ -136,5 +136,7 @@ export type JsonArray = JsonValue[];
 /**
  * An empty object is the union of all possible objects.
  * Make sure to use this intentionally and with caution.
+ * 
+ * @deprecated Use `tsAssertEmptyObj` instead.
  */
 export type EmptyObjectUNSAFE = {};

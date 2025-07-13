@@ -594,6 +594,53 @@ This function is particularly useful for:
 
 Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
 
+#### Empty Object Assertion
+
+The `tsAssertEmptyObj` function is a type-level assertion that ensures an object type is empty (has no properties). This is particularly useful for **destructuring completeness checks** to ensure all properties from an upstream object have been explicitly handled.
+
+```typescript
+import { tsAssertEmptyObj } from '@esoh/ts-utils';
+
+// Destructuring completeness check - ensures all properties are explicitly handled
+const { id, name, email, ..._rest } = userResponse;
+tsAssertEmptyObj<typeof _rest>(); // OK if _rest is empty, error if userResponse has unhandled properties
+
+// API response validation - catch upstream changes
+const { status, data, ..._rest } = apiResponse;
+tsAssertEmptyObj<typeof _rest>(); // Fails if API adds new properties
+
+// Configuration object validation
+const { port, host, debug, ..._rest } = config;
+tsAssertEmptyObj<typeof _rest>(); // Ensures all config options are handled
+
+// Event payload validation
+const { type, payload, timestamp, ..._rest } = event;
+tsAssertEmptyObj<typeof _rest>(); // Ensures all event properties are processed
+```
+
+**Error Examples:**
+
+```typescript
+// ❌ This will error if upstream object has additional properties
+const user = { id: 1, name: 'John', email: 'john@example.com', age: 30 };
+const { id, name, ..._rest } = user;
+tsAssertEmptyObj<typeof _rest>(); // Error: _rest has properties 'email' | 'age'
+
+// ✅ This works when all properties are handled
+const user = { id: 1, name: 'John' };
+const { id, name, ..._rest } = user;
+tsAssertEmptyObj<typeof _rest>(); // OK: _rest is empty
+```
+
+This function is particularly useful for:
+- **Defensive programming** - Catching breaking changes in external APIs
+- **Exhaustive destructuring** - Ensuring all properties are explicitly handled
+- **API evolution** - Failing fast when upstream interfaces change
+- **Documentation** - Showing intent to handle all properties
+- **Type safety** - Preventing runtime errors from missed properties
+
+Note that this is a compile-time check with no runtime overhead, as the function has no runtime behavior.
+
 #### Exhaustive Keys Assertion
 
 The `tsAssertExhaustiveKeys` function is a type-level assertion that ensures an array of keys exactly matches all the keys of an object type. It's particularly useful when you need to maintain a list of keys and want TypeScript to enforce that any changes to the object's keys must be reflected in the array.
