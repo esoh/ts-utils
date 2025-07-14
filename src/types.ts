@@ -140,3 +140,12 @@ export type JsonArray = JsonValue[];
  * @deprecated Use `tsAssertEmptyObj` instead.
  */
 export type EmptyObjectUNSAFE = {};
+
+/**
+ * If A and B are the same type, return TrueValueT, otherwise return FalseValueT.
+ */
+export type IfEquals<A, B, TrueValueT = "T", FalseValueT = "F"> = (<
+  G,
+>() => G extends A ? 1 : 2) extends <G>() => G extends B ? 1 : 2
+  ? TrueValueT
+  : FalseValueT;

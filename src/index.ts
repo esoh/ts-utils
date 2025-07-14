@@ -1,11 +1,4 @@
-/**
- * If A and B are the same type, return TrueValueT, otherwise return FalseValueT.
- */
-type IfEquals<A, B, TrueValueT = "T", FalseValueT = "F"> = (<
-  G,
->() => G extends A ? 1 : 2) extends <G>() => G extends B ? 1 : 2
-  ? TrueValueT
-  : FalseValueT;
+import { IfEquals } from "./types";
 
 /**
  * This function is used to enforce that two types are the same.
