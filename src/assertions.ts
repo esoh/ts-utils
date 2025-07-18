@@ -129,6 +129,18 @@ export function assertFunction(value: unknown, messageOrError?: string | Error):
 }
 
 /**
+ * Type-safe assertion function that checks if a value is a Date
+ * @param value - The value to check
+ * @param messageOrError - Optional error message or Error object
+ * @throws {Error} If the value is not a Date
+ */
+export function assertDate(value: unknown, messageOrError?: string | Error): asserts value is Date {
+  if (!(value instanceof Date)) {
+    throw createError(messageOrError, `Expected Date, got ${typeof value}`);
+  }
+}
+
+/**
  * Type-safe assertion function that returns the value after asserting it's a string
  * @param value - The value to check
  * @param messageOrError - Optional error message or Error object
@@ -197,6 +209,18 @@ export function assertedArray(value: unknown, messageOrError?: string | Error): 
  */
 export function assertedFunction(value: unknown, messageOrError?: string | Error): Function {
   assertFunction(value, messageOrError);
+  return value;
+}
+
+/**
+ * Type-safe assertion function that returns the value after asserting it's a Date
+ * @param value - The value to check
+ * @param messageOrError - Optional error message or Error object
+ * @returns The value if it's a Date
+ * @throws {Error} If the value is not a Date
+ */
+export function assertedDate(value: unknown, messageOrError?: string | Error): Date {
+  assertDate(value, messageOrError);
   return value;
 }
 

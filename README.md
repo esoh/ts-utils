@@ -424,8 +424,8 @@ function handleResult(result: Result) {
 
 ```typescript
 import { 
-  assertString, assertNumber, assertBoolean, assertObject, assertArray, assertFunction,
-  assertedString, assertedNumber, assertedBoolean, assertedObject, assertedArray, assertedFunction
+  assertString, assertNumber, assertBoolean, assertObject, assertArray, assertFunction, assertDate,
+  assertedString, assertedNumber, assertedBoolean, assertedObject, assertedArray, assertedFunction, assertedDate
 } from '@esoh/ts-utils';
 
 function processData(data: unknown) {
@@ -436,6 +436,7 @@ function processData(data: unknown) {
   assertObject(data.settings, 'Settings must be an object');
   assertArray(data.tags, 'Tags must be an array');
   assertFunction(data.handler, 'Handler must be a function');
+  assertDate(data.createdAt, 'createdAt must be a Date');
   
   // TypeScript now knows the types are correct
   console.log(data.name.toUpperCase());     // ✅ TypeScript knows this is a string
@@ -444,6 +445,7 @@ function processData(data: unknown) {
   console.log(Object.keys(data.settings));  // ✅ TypeScript knows this is an object
   console.log(data.tags.length);            // ✅ TypeScript knows this is an array
   data.handler();                           // ✅ TypeScript knows this is a function
+  console.log(data.createdAt.toISOString()); // ✅ TypeScript knows this is a Date
 }
 
 function processDataWithReturn(data: unknown) {
@@ -454,13 +456,15 @@ function processDataWithReturn(data: unknown) {
   const settings = assertedObject(data.settings, 'Settings must be an object');
   const tags = assertedArray(data.tags, 'Tags must be an array');
   const handler = assertedFunction(data.handler, 'Handler must be a function');
+  const createdAt = assertedDate(data.createdAt, 'createdAt must be a Date');
   
   // Can be used in expressions
   const upperName = assertedString(data.name, 'Name required').toUpperCase();
   const formattedAge = assertedNumber(data.age, 'Age required').toFixed(2);
   const tagCount = assertedArray(data.tags, 'Tags required').length;
+  const isoDate = assertedDate(data.createdAt, 'Date required').toISOString();
   
-  return { name, age, isActive, settings, tags, handler };
+  return { name, age, isActive, settings, tags, handler, createdAt };
 }
 
 // Works with unknown data from external sources
@@ -473,8 +477,9 @@ function validateApiResponse(response: unknown) {
     const user = assertedObject(data.user, 'User must be an object');
     const userName = assertedString(user.name, 'User name must be a string');
     const userAge = assertedNumber(user.age, 'User age must be a number');
+    const userCreatedAt = assertedDate(user.createdAt, 'User createdAt must be a Date');
     
-    return { userName, userAge };
+    return { userName, userAge, userCreatedAt };
   }
   
   return null;
