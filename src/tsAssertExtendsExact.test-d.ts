@@ -1,22 +1,5 @@
 import { tsAssertExtendsExact } from "./ts-assertions";
 
-/**
- * This function is used to enforce that the object passed in both extends
- * ExpectedT and has no extra properties compared to the exepcted type
- * ExpectedT.
- *
- * @example
- * const obj = { a: 1, b: 2 };
- * tsAssertExtendsExact<typeof obj, { a: number; b: number }>(); // GOOD
- *
- * @example
- * const obj = { a: 1, b: 2 };
- * tsAssertExtendsExact<typeof obj, { a: number }>(); // Error: obj2 has extra property b
- * @example
- * const obj = { a: 1 };
- * tsAssertExtendsExact<typeof obj, { a: number; b: number }>(); // Error: obj2 is missing property b
- */
-
 const obj = { a: 1, b: 2 };
 tsAssertExtendsExact<typeof obj, { a: number; b: number }>(); // GOOD
 
