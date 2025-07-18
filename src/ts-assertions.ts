@@ -104,3 +104,132 @@ export function tsAssertExhaustiveKeys<T extends object, K extends readonly (key
 ) {
   return;
 }
+
+type IsExtends<CandidateT, ExpectedT, TrueT, FalseT> =
+  CandidateT extends ExpectedT ? TrueT : FalseT;
+
+  type ZeroIfHasZero<T> = 0 extends T ? 0 : T;
+type OneIfHasOne<T> = 1 extends T ? 1 : T;
+type OneIfNever<T> = [T] extends [never] ? 1 : T;
+
+type NoExtraProps<ActualTMaybeUnion, ExpectedTMaybeUnion> =
+  // Every ActualT element needs an exact match in ExpectedT.
+  ZeroIfHasZero<
+    ActualTMaybeUnion extends infer ActualT
+      ? ActualT extends object
+        ? // now we're expanding the union of ExpectedT to see if any of the
+          // elements of ExpectedT are an exact match for the current ActualT
+          // element. we only need one match. so if any union element is 1, we
+          // can return 1.
+          OneIfHasOne<
+            ExpectedTMaybeUnion extends infer ExpectedT
+              ? ExpectedT extends object
+                ? // maybe they are both arrays?
+                  ActualT extends readonly unknown[]
+                  ? ExpectedT extends readonly unknown[]
+                    ? NoExtraProps<ActualT[number], ExpectedT[number]>
+                    : 0 // `ActualT` is an array but `ExpectedT` is not
+                  : // ActualT is not an array
+                    // we'll check that there are no extra keys.
+                    Exclude<keyof ActualT, keyof ExpectedT> extends never
+                    ? // ActualT is at least a partial type of ExpectedT.
+                      // we can iterate through the keys of ExpectedT and
+                      // make sure ActualT[key] satisfies ExpectedT[key].
+                      // If any properties fail the satisfy we return 0.
+                      ZeroIfHasZero<
+                        OneIfNever<
+                          // returns never if no properties, returns a
+                          // union of 0 or 1 otherwise
+                          {
+                            // iterate through every key in ExpectedT
+                            [K in keyof ExpectedT]: K extends keyof ActualT
+                              ? // if K is optional on ActualT but
+                                // required on ExpectedT, this should be
+                                // rejected.
+                                //
+                                // if K is optional on ActualT AND on
+                                // ExpectedT, we should check that the
+                                // types match.
+                                //
+                                // if K is required on ActualT but
+                                // is optonal on ExpectedT, we should
+                                // check that the types match.
+                                //
+                                // if K is required on ActualT AND on
+                                // ExpectedT, we should check the types
+                                // match.
+                                Record<string, never> extends Pick<ActualT, K>
+                                ? Record<string, never> extends Pick<
+                                    ExpectedT,
+                                    K
+                                  >
+                                  ? NoExtraProps<ActualT[K], ExpectedT[K]>
+                                  : 0
+                                : NoExtraProps<ActualT[K], ExpectedT[K]>
+                              : // just because K is in ExpectedT
+                                // doesn't mean ActualT needs it,
+                                // in the case that K is optional.
+                                Record<string, never> extends Pick<ExpectedT, K>
+                                ? 1
+                                : 0;
+                          }[keyof ExpectedT]
+                        >
+                      >
+                    : 0 // ActualT has extra keys when compared to ExpectedT
+                : 0 // ExpectedT doesn't extend object but ActualT does - this one is not a match.
+              : never // shouldn't really happen - ExpectedTMaybeUnion extends infer ExpectedT should work
+          >
+        : // ActualT is not an object.
+          ActualT extends ExpectedTMaybeUnion
+          ? 1
+          : 0
+      : never // shouldn't really happen - ActualT extends infer ActualT should work
+  >;
+type IfExtraProps<ActualT, ExpectedT, TrueT, FalseT> = 1 extends NoExtraProps<
+  ActualT,
+  ExpectedT
+>
+  ? FalseT
+  : TrueT;
+
+type IfExtendsWithoutExtraProps<
+  CandidateT,
+  ExpectedT,
+  TrueT,
+  FalseBcNotExtendsT = never,
+  FalseBcExtraPropsT = never,
+> = IfExtraProps<
+  CandidateT,
+  ExpectedT,
+  FalseBcExtraPropsT,
+  IsExtends<CandidateT, ExpectedT, TrueT, FalseBcNotExtendsT>
+>;
+
+/**
+ * This function is used to enforce that the object passed in both extends
+ * ExpectedT and has no extra properties compared to the exepcted type
+ * ExpectedT.
+ *
+ * @example
+ * const obj = { a: 1, b: 2 };
+ * tsAssertExtendsExact<typeof obj, { a: number; b: number }>(); // GOOD
+ *
+ * @example
+ * const obj = { a: 1, b: 2 };
+ * tsAssertExtendsExact<typeof obj, { a: number }>(); // Error: obj2 has extra property b
+ * @example
+ * const obj = { a: 1 };
+ * tsAssertExtendsExact<typeof obj, { a: number; b: number }>(); // Error: obj2 is missing property b
+ */
+export function tsAssertExtendsExact<CandidateT, ExpectedT>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ..._args: IfExtendsWithoutExtraProps<
+    CandidateT,
+    ExpectedT,
+    [],
+    ['CandidateT does not extend ExpectedT'],
+    ['CandidateT has extra properties when compared to ExpectedT']
+  >
+) {
+  return;
+}
