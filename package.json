@@ -1,6 +1,6 @@
 {
   "name": "@esoh/ts-utils",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "TypeScript utility functions with strict type safety",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
@@ -27,5 +27,6 @@
   },
   "devDependencies": {
     "typescript": "^5.0.2"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
