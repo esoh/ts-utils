@@ -233,3 +233,12 @@ export function tsAssertExtendsExact<CandidateT, ExpectedT>(
 ) {
   return;
 }
+
+type IfExtends<A, B, TrueValueT = "T", FalseValueT = "F"> = A extends B ? TrueValueT : FalseValueT;
+
+export function tsAssertExtends<CandidateT, ExpectedT>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ..._args: IfExtends< CandidateT, ExpectedT, [], ['CandidateT does not extend ExpectedT']>
+) {
+  return;
+}
