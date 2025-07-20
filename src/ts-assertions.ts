@@ -65,7 +65,7 @@ export function tsAssertIsEqual<ExpectedT, ActualT>(
  */
 export function tsAssertEmptyObj<T extends object>(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ..._args: IfEquals<T, {}, [], never>
+  ..._args: T extends unknown ? IfEquals<T, {}, [], never> : never
 ) {
   return;
 }
